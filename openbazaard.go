@@ -460,6 +460,8 @@ func getRepoPath(isTestnet bool) (string, error) {
 		directoryName = ".openbazaar2.0"
 	case "darwin":
 		path = "~/Library/Application Support"
+	case "windows":
+		path = "~/AppData\\Roaming"
 	}
 
 	// Append testnet flag if on testnet
