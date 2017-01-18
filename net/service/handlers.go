@@ -880,7 +880,6 @@ func (service *OpenBazaarService) handleDisputeClose(p peer.ID, pmes *pb.Message
 
 func (service *OpenBazaarService) handleChat(p peer.ID, pmes *pb.Message, options interface{}) (*pb.Message, error) {
 	log.Debugf("Received CHAT message from %s", p.Pretty())
-
 	// Unmarshall
 	chat := new(pb.Chat)
 	err := ptypes.UnmarshalAny(pmes.Payload, chat)
@@ -921,7 +920,9 @@ func (service *OpenBazaarService) handleChat(p peer.ID, pmes *pb.Message, option
 	if err != nil {
 		return nil, err
 	}
-
+	log.Debug("You did it! Chat received.")
+	log.Debug("Subject:", chat.Subject)
+	log.Debug("Message:", chat.Message)
 	// Push to websocket
 	n := notifications.ChatMessage{
 		PeerId:    p.Pretty(),
