@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	ipfslogging "gx/ipfs/QmSpJByNKFX1sCsHBEp3R73FL4NF6FnQTEGyNAXHm2GS52/go-log"
@@ -23,6 +24,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	recpb "gx/ipfs/QmdM4ohF7cr4MvAECVeD3hRA3HtZrk1ngaek4n8ojVT87h/go-libp2p-record/pb"
 
 	bstk "github.com/OpenBazaar/go-blockstackclient"
 	"github.com/OpenBazaar/openbazaar-go/api"
@@ -55,11 +58,10 @@ import (
 	"github.com/ipfs/go-ipfs/repo/fsrepo"
 	lockfile "github.com/ipfs/go-ipfs/repo/fsrepo/lock"
 	"github.com/ipfs/go-ipfs/thirdparty/ds-help"
-	"github.com/jessevdk/go-flags"
+	flags "github.com/jessevdk/go-flags"
 	"github.com/mitchellh/go-homedir"
 	"github.com/natefinch/lumberjack"
 	"github.com/op/go-logging"
-	recpb "gx/ipfs/QmdM4ohF7cr4MvAECVeD3hRA3HtZrk1ngaek4n8ojVT87h/go-libp2p-record/pb"
 )
 
 var (
@@ -423,6 +425,8 @@ func (x *Start) Execute(args []string) error {
 	}
 
 	log.Info("Peer ID: ", nd.Identity.Pretty())
+	pubbytes, _ := nd.PrivateKey.GetPublic().Bytes()
+	log.Info("PubKey: ", hex.EncodeToString(pubbytes))
 	printSwarmAddrs(nd)
 
 	// Get current directory root hash
