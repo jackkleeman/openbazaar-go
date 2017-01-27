@@ -4,6 +4,10 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	peer "gx/ipfs/QmfMmLGoKzCHDN7cGgk64PJr4iipzidDRME8HABSJqvmhC/go-libp2p-peer"
+	libp2p "gx/ipfs/QmfWDLQjGjVe4fr5CoztYW2DYYjRysMJrFe1RCsXLPTf46/go-libp2p-crypto"
+	"time"
+
 	"github.com/OpenBazaar/openbazaar-go/api/notifications"
 	"github.com/OpenBazaar/openbazaar-go/core"
 	"github.com/OpenBazaar/openbazaar-go/net"
@@ -17,9 +21,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
-	peer "gx/ipfs/QmfMmLGoKzCHDN7cGgk64PJr4iipzidDRME8HABSJqvmhC/go-libp2p-peer"
-	libp2p "gx/ipfs/QmfWDLQjGjVe4fr5CoztYW2DYYjRysMJrFe1RCsXLPTf46/go-libp2p-crypto"
-	"time"
+	"github.com/golang/protobuf/ptypes/timestamp"
 )
 
 func (service *OpenBazaarService) HandlerForMsgType(t pb.Message_MessageType) func(peer.ID, *pb.Message, interface{}) (*pb.Message, error) {
@@ -929,6 +931,20 @@ func (service *OpenBazaarService) handleChat(p peer.ID, pmes *pb.Message, option
 		Subject:   chat.Subject,
 		Message:   chat.Message,
 		Timestamp: t,
+	}
+	log.Debug("Responding to:", p.Pretty())
+	ts := new(timestamp.Timestamp)
+	ts.Seconds = t.Unix()
+	chatPb := &pb.Chat{
+		Subject:   chat.Subject,
+		Message:   "you wrote: " + chat.Message,
+		Timestamp: ts,
+		Flag:      pb.Chat_MESSAGE,
+	}
+	err = service.node.SendChat(p.Pretty(), chatPb)
+	if err != nil {
+		log.Error(err)
+		return nil, err
 	}
 	service.broadcast <- notifications.Serialize(n)
 	return nil, nil
