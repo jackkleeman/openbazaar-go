@@ -34,8 +34,8 @@ import (
 	ipnspath "github.com/ipfs/go-ipfs/path"
 	lockfile "github.com/ipfs/go-ipfs/repo/fsrepo/lock"
 	routing "github.com/ipfs/go-ipfs/routing/dht"
-	"github.com/jbenet/go-multiaddr"
-	"github.com/jbenet/go-multihash"
+	multiaddr "github.com/multiformats/go-multiaddr"
+	multihash "github.com/multiformats/go-multihash"
 	"golang.org/x/net/context"
 )
 
@@ -1744,7 +1744,7 @@ func (i *jsonAPIHandler) POSTChat(w http.ResponseWriter, r *http.Request) {
 		Timestamp: ts,
 		Flag:      flag,
 	}
-	err = i.node.SendChat(chat.PeerId, chatPb)
+	err = i.node.SendChat(chat.PeerId, nil, chatPb)
 	if err != nil {
 		ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

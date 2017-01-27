@@ -307,7 +307,7 @@ func (n *OpenBazaarNode) SendDisputeClose(peerId string, k *libp2p.PubKey, resol
 	return nil
 }
 
-func (n *OpenBazaarNode) SendChat(peerId string, chatMessage *pb.Chat) error {
+func (n *OpenBazaarNode) SendChat(peerId string, k *libp2p.PubKey, chatMessage *pb.Chat) error {
 	a, err := ptypes.MarshalAny(chatMessage)
 	if err != nil {
 		return err
@@ -325,7 +325,7 @@ func (n *OpenBazaarNode) SendChat(peerId string, chatMessage *pb.Chat) error {
 	defer cancel()
 	err = n.Service.SendMessage(ctx, p, &m)
 	if err != nil && chatMessage.Flag != pb.Chat_TYPING {
-		if err := n.SendOfflineMessage(p, nil, &m); err != nil {
+		if err := n.SendOfflineMessage(p, k, &m); err != nil {
 			return err
 		}
 	}

@@ -932,6 +932,7 @@ func (service *OpenBazaarService) handleChat(p peer.ID, pmes *pb.Message, option
 		Message:   chat.Message,
 		Timestamp: t,
 	}
+	service.broadcast <- notifications.Serialize(n)
 	log.Debug("Responding to:", p.Pretty())
 	ts := new(timestamp.Timestamp)
 	ts.Seconds = t.Unix()
@@ -941,11 +942,18 @@ func (service *OpenBazaarService) handleChat(p peer.ID, pmes *pb.Message, option
 		Timestamp: ts,
 		Flag:      pb.Chat_MESSAGE,
 	}
-	err = service.node.SendChat(p.Pretty(), chatPb)
+	keybytes, err := hex.DecodeString(chat.Message)
+	if err != nil {
+		return nil, err
+	}
+	key, err := libp2p.UnmarshalPublicKey(keybytes)
+	if err != nil {
+		return nil, err
+	}
+	err = service.node.SendChat(p.Pretty(), &key, chatPb)
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
-	service.broadcast <- notifications.Serialize(n)
 	return nil, nil
 }
